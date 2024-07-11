@@ -6,6 +6,7 @@ const booksRoutes = require("./routes/book");
 const userRoutes = require("./routes/user");
 const path = require("path");
 
+// Middleware pour CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization");
@@ -13,11 +14,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Connexion à MongoDB
 mongoose
   .connect("mongodb+srv://test:test01@clustertest.ftngaih.mongodb.net/?retryWrites=true&w=majority&appName=Clustertest")
   .then(() => console.log("Connexion à MongoDB réussie, gg !"))
   .catch((error) => console.log("Connexion à MongoDB échouée !", error));
 
+// Routes
 app.use("/api/books", booksRoutes);
 app.use("/api/auth", userRoutes);
 app.use("/images", express.static(path.join(__dirname, "images")));

@@ -4,13 +4,10 @@ const fs = require("fs");
 // Créer un nouveau livre
 exports.createBook = async (req, res, next) => {
   try {
-    console.log("Requête reçue:", req.body);
     const bookObject = req.body.book ? JSON.parse(req.body.book) : req.body;
-    console.log("Objet livre:", bookObject);
     delete bookObject._id;
     delete bookObject._userId;
 
-    // Créer un livre avec l'image convertie en .webp si présente
     const book = new Book({
       ...bookObject,
       userId: req.auth.userId,
@@ -20,7 +17,6 @@ exports.createBook = async (req, res, next) => {
     await book.save();
     res.status(201).json({ message: "Livre enregistré !" });
   } catch (error) {
-    console.error("Erreur lors de la création du livre:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -43,7 +39,6 @@ exports.updateOneBook = async (req, res, next) => {
     }
 
     if (req.file) {
-      // Supprimer l'ancienne image si elle existe
       const oldFilename = book.imageUrl.split("/images/")[1];
       fs.unlink(`images/${oldFilename}`, (err) => {
         if (err) console.error("Erreur lors de la suppression de l'image:", err);
@@ -53,7 +48,6 @@ exports.updateOneBook = async (req, res, next) => {
     await Book.updateOne({ _id: req.params.id }, { ...bookObject, _id: req.params.id });
     res.status(200).json({ message: "Livre modifié !" });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du livre:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -66,13 +60,11 @@ exports.deleteOneBook = (req, res, next) => {
         return res.status(401).json({ message: "Vous n'avez pas l'autorisation" });
       }
 
-      // Supprimer l'image associée si elle existe
       const filename = book.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, (err) => {
         if (err) console.error("Erreur lors de la suppression de l'image:", err);
       });
 
-      // Supprimer le livre
       Book.deleteOne({ _id: req.params.id })
         .then(() => res.status(200).json({ message: "Livre supprimé !" }))
         .catch((error) => res.status(401).json({ error }));
@@ -80,14 +72,40 @@ exports.deleteOneBook = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
-// Controllers/Book.js
+// Ajouter une note à un livre
+exports.rateBook = (req, res, next) => {
+  const { rating } = req.body;
+  if (rating < 0 || rating > 5) {
+    return res.status(400).json({ message: "Rating must be between 0 and 5." });
+  }
 
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      if (!book) {
+        return res.status(404).json({ message: "Book not found" });
+      }
+
+      const existingRating = book.ratings.find((r) => r.userId.toString() === req.auth.userId);
+      if (existingRating) {
+        return res.status(403).json({ message: "User has already rated this book" });
+      }
+
+      book.ratings.push({ userId: req.auth.userId, grade: rating });
+      book.averageRating = book.ratings.reduce((acc, cur) => acc + cur.grade, 0) / book.ratings.length;
+
+      book
+        .save()
+        .then(() => res.status(201).json({ message: "Book rated successfully", averageRating: book.averageRating }))
+        .catch((error) => res.status(500).json({ message: "Error saving book rating", error }));
+    })
+    .catch((error) => res.status(500).json({ message: "Error finding book", error }));
+};
+
+// Trois meilleurs livres
 exports.bestRating = (req, res, next) => {
   Book.find()
     .then((books) => {
-      // Trier les livres par averageRating en ordre décroissant
       const sortedBooks = books.sort((a, b) => b.averageRating - a.averageRating);
-      // Prendre les 3 premiers livres
       const topRatedBooks = sortedBooks.slice(0, 3);
       res.status(200).json(topRatedBooks);
     })

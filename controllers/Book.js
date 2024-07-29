@@ -80,6 +80,20 @@ exports.deleteOneBook = (req, res, next) => {
     .catch((error) => res.status(500).json({ error }));
 };
 
+// Controllers/Book.js
+
+exports.bestRating = (req, res, next) => {
+  Book.find()
+    .then((books) => {
+      // Trier les livres par averageRating en ordre décroissant
+      const sortedBooks = books.sort((a, b) => b.averageRating - a.averageRating);
+      // Prendre les 3 premiers livres
+      const topRatedBooks = sortedBooks.slice(0, 3);
+      res.status(200).json(topRatedBooks);
+    })
+    .catch((error) => res.status(400).json({ error }));
+};
+
 // Obtenir un livre par son ID
 exports.getOneBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })

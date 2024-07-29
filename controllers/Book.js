@@ -76,7 +76,7 @@ exports.deleteOneBook = (req, res, next) => {
 exports.rateBook = (req, res, next) => {
   const { rating } = req.body;
   if (rating < 0 || rating > 5) {
-    return res.status(400).json({ message: "Rating must be between 0 and 5." });
+    return res.status(400).json({ message: "Rating must be between 0 et 5." });
   }
 
   Book.findOne({ _id: req.params.id })
@@ -95,7 +95,7 @@ exports.rateBook = (req, res, next) => {
 
       book
         .save()
-        .then(() => res.status(201).json({ message: "Book rated successfully", averageRating: book.averageRating }))
+        .then((updatedBook) => res.status(201).json({ message: "Book rated successfully", book: updatedBook }))
         .catch((error) => res.status(500).json({ message: "Error saving book rating", error }));
     })
     .catch((error) => res.status(500).json({ message: "Error finding book", error }));

@@ -2,9 +2,12 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 const mongoose = require("mongoose");
+const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
+
 const booksRoutes = require("./routes/book");
 const userRoutes = require("./routes/user");
-const path = require("path");
 
 // Middleware pour CORS
 app.use((req, res, next) => {
@@ -16,7 +19,7 @@ app.use((req, res, next) => {
 
 // Connexion à MongoDB
 mongoose
-  .connect("mongodb+srv://test:test01@clustertest.ftngaih.mongodb.net/?retryWrites=true&w=majority&appName=Clustertest")
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connexion à MongoDB réussie, gg !"))
   .catch((error) => console.log("Connexion à MongoDB échouée !", error));
 

@@ -4,18 +4,16 @@ app.use(express.json());
 const mongoose = require("mongoose");
 const path = require("path");
 const dotenv = require("dotenv");
+
+const cors = require("cors");
+
 dotenv.config();
 
 const booksRoutes = require("./routes/book");
 const userRoutes = require("./routes/user");
 
-// Middleware pour CORS
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-  next();
-});
+// Middleware pour CORS avec le package `cors`
+app.use(cors());
 
 // Connexion à MongoDB
 mongoose

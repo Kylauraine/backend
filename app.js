@@ -1,19 +1,24 @@
 const express = require("express");
 const app = express();
-app.use(express.json());
 const mongoose = require("mongoose");
 const path = require("path");
 const dotenv = require("dotenv");
-
+const helmet = require("helmet");
 const cors = require("cors");
 
+// Charger les variables d'environnement
 dotenv.config();
 
-const booksRoutes = require("./routes/book");
-const userRoutes = require("./routes/user");
+// Middleware pour Helmet
+app.use(helmet());
+
+app.use(express.json());
 
 // Middleware pour CORS avec le package `cors`
 app.use(cors());
+
+const booksRoutes = require("./routes/book");
+const userRoutes = require("./routes/user");
 
 // Connexion à MongoDB
 mongoose

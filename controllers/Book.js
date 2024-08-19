@@ -93,9 +93,8 @@ exports.rateBook = (req, res, next) => {
       book.ratings.push({ userId: req.auth.userId, grade: rating });
       book.averageRating = book.ratings.reduce((acc, cur) => acc + cur.grade, 0) / book.ratings.length;
 
-      book
-        .save()
-        .then((updatedBook) => res.status(201).json({ message: "Book rated successfully", book: updatedBook }))
+      Book.updateOne({ _id: req.params.id }, book)
+        .then(() => res.status(200).json(book))
         .catch((error) => res.status(500).json({ message: "Error saving book rating", error }));
     })
     .catch((error) => res.status(500).json({ message: "Error finding book", error }));

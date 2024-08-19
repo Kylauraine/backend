@@ -76,18 +76,18 @@ exports.deleteOneBook = (req, res, next) => {
 exports.rateBook = (req, res, next) => {
   const { rating } = req.body;
   if (rating < 0 || rating > 5) {
-    return res.status(400).json({ message: "Rating must be between 0 et 5." });
+    return res.status(400).json({ message: "La notre doit être entre 1 et 5." });
   }
 
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (!book) {
-        return res.status(404).json({ message: "Book not found" });
+        return res.status(404).json({ message: "Livre non trouvé" });
       }
 
       const existingRating = book.ratings.find((r) => r.userId.toString() === req.auth.userId);
       if (existingRating) {
-        return res.status(403).json({ message: "User has already rated this book" });
+        return res.status(403).json({ message: "Vous avez déjà noté ce livre" });
       }
 
       book.ratings.push({ userId: req.auth.userId, grade: rating });
@@ -95,9 +95,9 @@ exports.rateBook = (req, res, next) => {
 
       Book.updateOne({ _id: req.params.id }, book)
         .then(() => res.status(200).json(book))
-        .catch((error) => res.status(500).json({ message: "Error saving book rating", error }));
+        .catch((error) => res.status(500).json({ message: "Erreur dans la sauvegarde de la note", error }));
     })
-    .catch((error) => res.status(500).json({ message: "Error finding book", error }));
+    .catch((error) => res.status(500).json({ message: "Impossible de trouver le livre", error }));
 };
 
 // Trois meilleurs livres

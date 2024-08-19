@@ -17,7 +17,7 @@ const upload = multer({ storage: storage }).single("image");
 
 // Middleware pour convertir les images en .webp
 const convertToWebp = async (req, res, next) => {
-  if (!req.file) return next(); // Passer au middleware suivant s'il n'y a pas de fichier
+  if (!req.file) return next();
 
   try {
     // Convertir l'image en format .webp et 600x600px max
@@ -28,7 +28,6 @@ const convertToWebp = async (req, res, next) => {
     const newFilename = name + Date.now() + ".webp";
     const filePath = path.join("images", newFilename);
 
-    // Sauvegarder l'image .webp dans le dossier images
     fs.writeFileSync(filePath, buffer);
 
     // Attacher les informations du fichier à l'objet req.file

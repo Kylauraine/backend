@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
-const dotenv = require("dotenv"); // Importation de dotenv
+const dotenv = require("dotenv");
 
-dotenv.config(); // Chargement des variables d'environnement
+dotenv.config();
 
 const Book = require("./models/Book");
 
@@ -19,7 +19,6 @@ mongoose
     // Lire le fichier data.json
     const data = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 
-    // Insérer les données dans la collection 'books'
     return Book.insertMany(data);
   })
   .then((result) => {
